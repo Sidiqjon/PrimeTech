@@ -1,0 +1,247 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id          Int      @id @default(autoincrement())
+  firstName   String
+  lastName    String
+  regionId    Int?
+  year        Int
+  phoneNumber String
+  email       String   @unique
+  password    String
+  role        Role     @default(USER)
+  img         String[]
+  status      Status   @default(INACTIVE)
+  onlineAt    DateTime?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  region      Region?   @relation(fields: [regionId], references: [id], onDelete: SetNull)
+  products    Product[] 
+  orders      Order[]   
+  comments    Comment[]
+  likes       Like[]
+  views       View[]
+  chatsSent   Chat[]   @relation("SentChats")
+  chatsReceived Chat[] @relation("ReceivedChats")
+  sessions    Session[] 
+
+}
+
+model Region {
+  id      Int    @id @default(autoincrement())
+  name    String @unique
+
+  users   User[]
+}
+
+model Session {
+  id         Int      @id @default(autoincrement())
+  userId     Int
+  ipAddress  String
+  deviceInfo String?
+  location   String
+  createdAt  DateTime @default(now())
+
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model Color {
+  id       Int     @id @default(autoincrement())
+  name     String  @unique
+
+  productColors ProductColor[]
+}
+
+model ProductColor {
+  id        Int     @id @default(autoincrement())
+  productId Int
+  colorId   Int
+
+  product   Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+  color     Color   @relation(fields: [colorId], references: [id], onDelete: Cascade)
+
+  @@unique([productId, colorId]) 
+}
+
+model Category {
+  id        Int          @id @default(autoincrement())
+  name      String       @unique
+  type      CategoryType
+
+  products  Product[]
+
+  createdAt DateTime     @default(now())
+  updatedAt DateTime     @updatedAt
+}
+
+model Product {
+  id              Int       @id @default(autoincrement())
+  name            String
+  price           Decimal
+  currency        Currency
+  quantity        Int
+  discount        Decimal?  @default(0)   
+  discountPrice   Decimal?  @default(0)   
+  description     String?
+  condition       Condition
+  isNegotiable    Boolean  @default(false)
+  tradeType       TradeType
+  isAvailable     Boolean   @default(true)
+  location        String
+  img             String[]
+  status          ProductStatus
+    
+  userId          Int
+  user            User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+     
+  categoryId      Int
+  category        Category  @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+     
+  regionId        Int?
+     
+  orders          Order[]
+  comments        Comment[]
+  likes           Like[]
+  views           View[]
+  chats           Chat[]
+  colors          ProductColor[]
+     
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+}
+
+model Order {
+  id         Int      @id @default(autoincrement())
+  quantity   Int
+  totalPrice Decimal 
+  productId  Int
+  userId     Int
+  createdAt  DateTime @default(now())
+
+  product Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+  user    User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model Chat {
+  id         Int      @id @default(autoincrement())
+  message    String
+  createdAt  DateTime @default(now())
+
+  fromId     Int
+  from       User     @relation("SentChats", fields: [fromId], references: [id], onDelete: NoAction)
+
+  toId       Int
+  to         User     @relation("ReceivedChats", fields: [toId], references: [id], onDelete: NoAction)
+
+  productId  Int
+  product    Product  @relation(fields: [productId], references: [id], onDelete: Cascade) 
+}
+
+model View {
+  id         Int      @id @default(autoincrement())
+  createdAt  DateTime @default(now())
+
+  userId     Int
+  user       User     @relation(fields: [userId], references: [id], onDelete: NoAction)
+
+  productId  Int
+  product    Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+}
+
+model Comment {
+  id         Int      @id @default(autoincrement())
+  message    String
+  star       Decimal  @db.Decimal(2,1)
+
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  userId     Int
+  user       User     @relation(fields: [userId], references: [id], onDelete:NoAction)
+
+  productId  Int
+  product    Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+
+}
+
+model Like {
+  id        Int      @id @default(autoincrement())
+  
+  userId    Int
+  user      User     @relation(fields: [userId], references: [id], onDelete: NoAction)
+
+  productId Int
+  product   Product  @relation(fields: [productId], references: [id], onDelete: NoAction)
+
+  @@unique([userId, productId]) 
+}
+
+model SiteMetadata {
+  id            String     @id @default(uuid())
+  about         String?
+  privacyPolicy String?
+  email         String   @unique
+  phoneNumber   String
+  socialMedia   Json 
+}
+
+
+// 
+enum Role {
+  ADMIN
+  SUPER_ADMIN
+  USER
+}
+
+enum Status {
+  ACTIVE
+  INACTIVE
+  BLOCKED
+}
+
+enum CategoryType {
+  LAPTOPS
+  MOBILE_PHONES
+  ELECTRONICS
+  ACCESSORIES
+}
+
+enum Currency {
+  UZS
+  USD
+}
+
+enum Condition {
+  NEW
+  USED
+  REFURBISHED
+  OPEN_BOX
+  DAMAGED
+}
+
+enum TradeType {
+  SALE
+  RENT
+  FREE
+  BARTER
+}
+
+enum ProductStatus {
+  ACCEPTED
+  PENDING
+  REJECTED
+}
