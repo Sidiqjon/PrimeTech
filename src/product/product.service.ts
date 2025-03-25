@@ -9,6 +9,8 @@ export class ProductService {
   constructor(private readonly prisma: PrismaService) {}
 
   async create(dto: CreateProductDto) {
+    console.log(dto);
+    
     return this.prisma.product.create({ data: { ...dto } });
   }
 

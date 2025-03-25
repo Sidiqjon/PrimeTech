@@ -15,9 +15,10 @@ import { ChatModule } from './chat/chat.module';
 import { SiteMetadataModule } from './sitemetadata/sitemetadata.module';
 import { CommentModule } from './comment/comment.module';
 import { LikeModule } from './like/like.module';
+import { SocketModule } from './socket/socket.module';
 
 @Module({
-  imports: [UploadModule, PrismaModule, AuthModule, MailModule, UserModule, CategoryModule, ProductModule, RegionModule, OrderModule, ColorModule, ChatModule, SiteMetadataModule, CommentModule, LikeModule],
+  imports: [UploadModule, PrismaModule, AuthModule, MailModule, UserModule, CategoryModule, ProductModule, RegionModule, OrderModule, ColorModule, ChatModule, SiteMetadataModule, CommentModule, LikeModule, SocketModule],
   controllers: [],
   providers: [],
 })

@@ -19,7 +19,7 @@ async function bootstrap() {
   .setTitle('PRIME TECH!')
   .setDescription('The PRIME TECH online market API description')
   .setVersion('1.0')
-  .addBearerAuth(      {
+  .addBearerAuth({
     type: 'http',
     scheme: 'bearer',
     bearerFormat: 'JWT',  

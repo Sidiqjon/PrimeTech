@@ -9,7 +9,7 @@ export class CreateProductDto {
   name: string;
 
   @ApiProperty({ description: 'Product price', example: 1299.99 })
-  @IsDecimal()
+  @IsNumber()
   price: number;
 
   @ApiProperty({ description: 'Currency type', enum: Currency, example: Currency.USD })
