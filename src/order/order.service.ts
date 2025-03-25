@@ -64,7 +64,7 @@ export class OrderService {
 
     this.socketGateway.sendOrderNotification(
       order.product.userId,
-      `New order placed for your product! Order ID: ${order.id}`,
+      `New order for your product! Order ID: ${order.id}`,
     );
 
     return order;
